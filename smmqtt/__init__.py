@@ -137,7 +137,7 @@ class SmartMeterMQTT:
             #print("%s/%s/state" % (self.mqtt_topic, item['id']), value)
             self.mqtt_client.publish("%s/%s/state" % (self.mqtt_topic, item['id']), value)
             if 'parsed' in item:
-                self.mqtt_client.publish("%s/%s/attr" % (self.mqtt_topic, item['id']), value)
+                self.mqtt_client.publish("%s/%s/attr" % (self.mqtt_topic, item['id']), value_attr)
 
 
     def connack_string(self, state):
