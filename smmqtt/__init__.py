@@ -91,7 +91,7 @@ class SmartMeterMQTT:
             }
         return {
             'value': float(matches[1]), 
-            'unit': matches[2]
+            'unit_of_measurment': matches[2]
         }
 
     def get_line_data(self, data_list):
@@ -126,13 +126,18 @@ class SmartMeterMQTT:
 
         # publish to mqtt
         for item in data:
+            value_attr = None
             value = None
             if 'string' in item:
+                value_attr = item['string']
                 value = item['string']
             if 'parsed' in item:
-                value = json.dumps(item['parsed'])
+                value_attr = json.dumps(item['parsed'])
+                value = item['parsed']['value']
             #print("%s/%s/state" % (self.mqtt_topic, item['id']), value)
             self.mqtt_client.publish("%s/%s/state" % (self.mqtt_topic, item['id']), value)
+            if 'parsed' in item:
+                self.mqtt_client.publish("%s/%s/attr" % (self.mqtt_topic, item['id']), value)
 
 
     def connack_string(self, state):
