@@ -6,7 +6,7 @@ from smmqtt import SmartMeterMQTT
 
 if __name__ == '__main__':
     config = configparser.ConfigParser()
-    config.read('settings.cfg')
+    config.read(['./setup/settings.cfg','/etc/smmqtt.conf'])
 
     server = SmartMeterMQTT(config)
  
