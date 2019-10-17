@@ -2,6 +2,9 @@ import time
 import sys
 import serial
 import paho.mqtt.client as mqtt
+from bitstring import BitArray
+import re
+import json
 
 class SmartMeterMQTT:
 
@@ -37,20 +40,99 @@ class SmartMeterMQTT:
 
     def main_loop(self):
 
+        data = bytearray()
+        line_buffer = []
         while True:
             #read meter
-            print("read")
             response = self.serial.readlines()
+            #reset the line buffer
+            line_buffer = []
             if response:
-                self.on_recv()
+                c = BitArray(response[0])
+                c.invert()
+                ba = bytearray.fromhex(c.hex)
+                data = bytearray()
+                for b in ba:
+                    if b == 255:
+                        data_decoded = bytes(data).decode('utf-8').strip()
+                        line_buffer.append(data_decoded)
+                        #reset data
+                        data = bytearray()
+                        continue
+                    data.append((b >> 1))
+                self.on_recv(line_buffer)
             time.sleep(self.delay)
 
 
-    def on_recv(self):
+    """
+    the following 3 functions are not capturing all data
+    correctly. But it works good enough for now. 
+    """
+    def line_cleanup(self, line):
+
+        line = line.replace('LK$','0-1:')
+        line = line.replace('T\x02','0-0')
+        line = line.replace('T\n','1-0')
+        line = line.replace(')\x04',':(')
+        line = line.replace('Ca0-1','0-1')
+        return line
+
+
+    def get_value_unit(self, str_data):
+
+        matches = re.split(r'(\d+\.\d+)\*(\w+)', str_data)
+        if len(matches) == 1:
+            #try int
+            matches = re.split(r'(\d+)', str_data)
+            if len(matches) == 1:
+                return {}
+            return {
+                'value': int(matches[1])
+            }
+        return {
+            'value': float(matches[1]), 
+            'unit': matches[2]
+        }
+
+    def get_line_data(self, data_list):
+
+        matches = re.split(r'^([.\d]+)\((.*)\)', data_list)
+        data = {'id': matches[0]}
+        if len(matches) >= 4:
+            data['id'] = matches[1]
+            data['string'] = matches[2]
+            tmp = self.get_value_unit(matches[2])
+            if 'value' in tmp:
+                data['parsed'] = tmp
+        return data
+
+
+    def lines_dict(self, lines):
+
+        data = [] 
+        for line in lines:
+            clean_line = self.line_cleanup(line)
+            line_list = clean_line.split(':')
+            if len(line_list) < 2:
+                continue
+            line_data = self.get_line_data(line_list[1])
+            data.append(line_data)
+        return data
+
+    
+    def on_recv(self, lines):
         # process data
-        print('on_recv')
+        data = self.lines_dict(lines)
+
         # publish to mqtt
-        # self.mqtt_client.publish(("%s/%d/state" % (self.mqtt_topic, ?), value)
+        for item in data:
+            value = None
+            if 'string' in item:
+                value = item['string']
+            if 'parsed' in item:
+                value = json.dumps(item['parsed'])
+            #print("%s/%s/state" % (self.mqtt_topic, item['id']), value)
+            self.mqtt_client.publish("%s/%s/state" % (self.mqtt_topic, item['id']), value)
 
 
     def connack_string(self, state):

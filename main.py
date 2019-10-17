@@ -8,7 +8,6 @@ if __name__ == '__main__':
     config = configparser.ConfigParser()
     config.read('settings.cfg')
 
-    print(config.sections())
     server = SmartMeterMQTT(config)
  
     try:
