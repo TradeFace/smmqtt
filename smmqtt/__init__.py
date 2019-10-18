@@ -91,7 +91,7 @@ class SmartMeterMQTT:
             }
         return {
             'value': float(matches[1]), 
-            'unit_of_measurment': matches[2]
+            'unit_of_measurement': matches[2]
         }
 
     def get_line_data(self, data_list):
