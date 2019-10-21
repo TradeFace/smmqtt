@@ -19,6 +19,8 @@ module | RJ11 | RJ12
 
 MQTT
 -------
+=> state topics now only hold the value. 
+other data available via topic/attr
 ```
 smartmeter/1.0.0/state {"value": <meter_id>}
 smartmeter/96.1.1/state {"value": <meter_serialnumber>}
@@ -44,9 +46,15 @@ smartmeter/96.1.0/state {"value": <gasmeter_serialnumber>}
 smartmeter/24.2.1/state {"value": 1642.657, "unit": "m3"}
 ```
 
+Issues
+---------
+- `make install` doesn't set pwd correctly 
+- meter_id trailing chars are trimmed in regex
+- readme MQTT; incorrect reflection output
 
 
 Useful links
 ------------
+- https://github.com/TradeFace/haconfig/blob/master/packages/smartmeter.yaml
 - http://domoticx.com/p1-poort-slimme-meter-hardware/
 - https://gejanssen.com/howto/Slimme-meter-uitlezen/index.html
