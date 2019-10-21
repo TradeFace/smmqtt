@@ -1,11 +1,26 @@
 Smart Meter MQTT
 ==============
 
-Reads Landis + Gyr E350 (ZCF110) DSMR 4.2 with a cheap usb to tll module and sends the data to MQTT.
+Reads a smartmeter with a cheap usb to tll module and sends the data to MQTT.
 
-Module used:
-USB CP2102 to TTL RS232 USB TTL to RS485 Mutual Convert 6 in 1 Convert Module
+Install
+-------
+```
+make
+make install
+```
+
+Tested Modules
+-------
+- USB CP2102 to TTL RS232 USB TTL to RS485 Mutual Convert 6 in 1 Convert Module
 https://www.aliexpress.com/item/32828039395.html
+- CH340 module 
+https://www.aliexpress.com/item/32761423124.html
+
+Tested Smartmeter
+------
+- Landis + Gyr E350 (ZCF110) DSMR 4.2
+
 
 Fysical connection
 ------
