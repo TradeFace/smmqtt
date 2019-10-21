@@ -48,7 +48,6 @@ smartmeter/24.2.1/state {"value": 1642.657, "unit": "m3"}
 
 Issues
 ---------
-- `make install` doesn't set pwd correctly 
 - meter_id trailing chars are trimmed in regex
 - readme MQTT; incorrect reflection output
 
