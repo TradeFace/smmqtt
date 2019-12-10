@@ -10,6 +10,7 @@ class SmartMeterMQTT:
 
     delay = 1
     config = []
+    last_send = 0
 
     def __init__(self, config):
 
@@ -121,6 +122,12 @@ class SmartMeterMQTT:
 
     
     def on_recv(self, lines):
+
+        #send only once per minute
+        if time.time() < self.last_send+60:
+            return
+        self.last_send = time.time()
+
         # process data
         data = self.lines_dict(lines)
 
